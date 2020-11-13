@@ -16,7 +16,7 @@ class AnswersController < ApplicationController
   private
 
   def set_question
-    @question ||= params[:id] ? Question.find(params[:id]) : Question.new
+    @question = Question.find(params[:question_id])
   end
 
   def answer_params
