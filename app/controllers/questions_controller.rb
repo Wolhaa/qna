@@ -1,20 +1,24 @@
 class QuestionsController < ApplicationController
+  before_action :authenticate_user!, only: %i[new create destroy]
   before_action :set_question, only: %i[show edit new update destroy]
+
   def index
-    @question = Question.all
+    @questions = Question.all
   end
 
-  def show; end
+  def show
+    @answer = Answer.new
+  end
 
   def new; end
 
   def edit; end
 
   def create
-    @question = Question.new(question_params)
+    @question = current_user.questions.new(question_params)
 
     if @question.save
-      redirect_to @question
+      redirect_to @question, notice: 'Your question successfully created.'
     else
       render :new
     end
@@ -29,8 +33,12 @@ class QuestionsController < ApplicationController
   end
 
   def destroy
-    @question.destroy
-    redirect_to question_path
+    if current_user&.author?(@question)
+      @question.destroy
+      redirect_to questions_path, notice: 'Question successfully deleted.'
+    else
+      redirect_to @question, notice: 'Only author can delete question.'
+    end
   end
 
   private
